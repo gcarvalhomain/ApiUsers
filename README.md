@@ -1,58 +1,88 @@
 # ApiUsers
 
-## Português
+API de gerenciamento de usuários desenvolvida com ASP.NET Core Minimal API.
 
-API simples para gerenciar usuários.
+Criei esse projeto para praticar os principais conceitos de uma Web API com C#, incluindo CRUD, banco de dados, autenticação JWT, autorização por roles, validações, paginação, busca e ordenação.
 
-ASP.NET Core Minimal API, Entity Framework Core e SQL Server. A API salva usuários no banco e permite criar, listar, buscar, atualizar e remover registros.
+## Tecnologias usadas
 
-Cada usuário tem:
+* C#
+* ASP.NET Core Minimal API
+* Entity Framework Core
+* SQL Server
+* JWT
+* Scalar
+* Migrations
 
-- `id`
-- `name`
-- `email`
-- `age`
-- `createdAt`
-- `updatedAt`
+## O que a API faz
 
-O email não pode se repetir.
+A API permite:
 
-### Como rodar o projeto
+* cadastrar usuários
+* fazer login
+* gerar token JWT
+* listar usuários
+* buscar usuário por ID
+* atualizar usuário
+* remover usuário
+* proteger rotas com autenticação
+* limitar ações por role
+* paginar resultados
+* buscar por nome ou e-mail
+* ordenar os resultados
 
-Você precisa ter instalado:
+## Autenticação
 
-- .NET 10 SDK
-- SQL Server ou SQL Server Express
-- Entity Framework Core CLI
+A autenticação é feita com JWT.
 
-Instale a ferramenta do Entity Framework se ainda não tiver: 
-
-```bash
-dotnet tool install --global dotnet-ef
-```
-
-Veja a conexão do banco em `appsettings.json`:
-
-```json
-"DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=ApiUsersDb;Trusted_Connection=True;TrustServerCertificate=True"
-```
-
-Depois rode:
-
-```bash
-dotnet restore
-dotnet ef database update
-dotnet run
-```
-
-O projeto abre nestes endereços:
+Rotas principais:
 
 ```text
-http://localhost:5203
-https://localhost:7272
+POST /api/auth/register
+POST /api/auth/login
+GET  /api/auth/me
 ```
 
-### Rotas
+Exemplo de cadastro:
+
+```json
+{
+  "name": "Maria Silva",
+  "email": "maria@email.com",
+  "age": 25,
+  "password": "123456"
+}
+```
+
+Exemplo de login:
+
+```json
+{
+  "email": "maria@email.com",
+  "password": "123456"
+}
+```
+
+O login retorna um token JWT, que deve ser enviado nas rotas protegidas:
+
+```text
+Authorization: Bearer seu_token_aqui
+```
+
+## Roles
+
+A API usa dois tipos de usuário:
+
+```text
+User
+Admin
+```
+
+Por padrão, novos usuários são criados como `User`.
+
+A role `Admin` é necessária para remover usuários.
+
+## Rotas de usuários
 
 ```text
 GET    /api/users
@@ -62,98 +92,87 @@ PUT    /api/users/{id}
 DELETE /api/users/{id}
 ```
 
-### Criar usuário
-
-```json
-{
-  "name": "Maria Silva",
-  "email": "maria@email.com",
-  "age": 25
-}
-```
-
-### Listar usuários
-
-A rota `GET /api/users` aceita filtros:
+## Permissões
 
 ```text
-page=1
-pageSize=10
-search=maria
-sortyBy=name
-SortedDirection=desc
+GET    /api/users        Público
+GET    /api/users/{id}   Público
+POST   /api/users        Requer autenticação
+PUT    /api/users/{id}   Requer autenticação
+DELETE /api/users/{id}   Requer autenticação e role Admin
+GET    /api/auth/me      Requer autenticação
+```
+
+## Listagem com filtros
+
+A rota `GET /api/users` aceita alguns parâmetros opcionais:
+
+```text
+page
+pageSize
+search
+sortBy
+sortDirection
 ```
 
 Exemplo:
 
 ```text
-/api/users?page=1&pageSize=10&search=maria&sortyBy=name&SortedDirection=desc
+/api/users?page=1&pageSize=10&search=maria&sortBy=name&sortDirection=asc
 ```
 
-Observação: no código o parâmetro está como `sortyBy`, então use esse nome mesmo.
-
-### Pastas principais
+Campos disponíveis para ordenação:
 
 ```text
-Data        Configuração do banco
-Dtos        Dados de entrada e saída
-Endpoints   Rotas da API
-Migrations  Migrações do banco
-Models      Modelos do projeto
-Responses   Respostas padrão
-Service     Regras dos usuários
+id
+name
+email
+age
+createdAt
 ```
 
-### Status codes
-```text
-    200 OK
-    201 Created
-    204 No Content
-    400 Bad Request
-    404 Not Found
-    409 Conflict
+## Banco de dados
+
+O projeto usa SQL Server com Entity Framework Core.
+
+A connection string fica no `appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=ApiUsersDb;Trusted_Connection=True;TrustServerCertificate=True"
+  }
+}
 ```
 
----
+Também é necessário configurar os dados do JWT:
 
-## English
+```json
+{
+  "Jwt": {
+    "Key": "sua-chave-secreta-com-tamanho-suficiente",
+    "Issuer": "ApiUsers",
+    "Audience": "ApiUsersClient",
+    "ExpirationInMinutes": 60
+  }
+}
+```
 
-Simple API to manage users.
+## Como rodar o projeto
 
-ASP.NET Core Minimal API, Entity Framework Core, and SQL Server. The API stores users in the database and can create, list, search, update, and delete records.
+Requisitos:
 
-Each user has:
+* .NET 10 SDK
+* SQL Server ou SQL Server Express
+* Entity Framework Core CLI
 
-- `id`
-- `name`
-- `email`
-- `age`
-- `createdAt`
-- `updatedAt`
-
-The email must be unique.
-
-### How to run
-
-You need:
-
-- .NET 10 SDK
-- SQL Server or SQL Server Express
-- Entity Framework Core CLI
-
-Install the Entity Framework tool if you do not have it:
+Instalar a ferramenta do Entity Framework, caso ainda não tenha:
 
 ```bash
 dotnet tool install --global dotnet-ef
 ```
 
-Check the database connection in `appsettings.json`:
-
-```json
-"DefaultConnection": "Server=localhost\\SQLEXPRESS;Database=ApiUsersDb;Trusted_Connection=True;TrustServerCertificate=True"
-```
-
-Then run:
+Rodar o projeto:
 
 ```bash
 dotnet restore
@@ -161,61 +180,49 @@ dotnet ef database update
 dotnet run
 ```
 
-The project runs on:
+A API pode ser testada pelo Scalar:
 
 ```text
-http://localhost:5203
-https://localhost:7272
+http://localhost:5203/scalar/v1
 ```
 
-### Routes
+A porta pode mudar dependendo da configuração local.
+
+## Status codes usados
 
 ```text
-GET    /api/users
-GET    /api/users/{id}
-POST   /api/users
-PUT    /api/users/{id}
-DELETE /api/users/{id}
+200 OK
+201 Created
+204 No Content
+400 Bad Request
+401 Unauthorized
+403 Forbidden
+404 Not Found
+409 Conflict
 ```
 
-### Create user
-
-```json
-{
-  "name": "Maria Silva",
-  "email": "maria@email.com",
-  "age": 25
-}
-```
-
-### List users
-
-The `GET /api/users` route accepts filters:
+## Estrutura do projeto
 
 ```text
-page=1
-pageSize=10
-search=maria
-sortyBy=name
-SortedDirection=desc
+Data        Configuração do banco
+Dtos        Objetos de entrada e saída
+Endpoints   Rotas da API
+Migrations  Migrações do banco
+Models      Modelos do projeto
+Responses   Respostas padronizadas
+Service     Regras de negócio
 ```
 
-Example:
+## Observação
 
-```text
-/api/users?page=1&pageSize=10&search=maria&sortyBy=name&SortedDirection=desc
-```
+Esse projeto foi desenvolvido como prática de backend com ASP.NET Core.
 
-Note: the parameter in the code is `sortyBy`, so use that name.
+A ideia foi começar com um CRUD simples e evoluir aos poucos, adicionando banco de dados, autenticação, autorização, validações e recursos comuns em APIs reais.
 
-### Main folders
+Próximos pontos que ainda podem ser adicionados:
 
-```text
-Data        Database setup
-Dtos        Request and response data
-Endpoints   API routes
-Migrations  Database migrations
-Models      Project models
-Responses   Standard responses
-Service     User rules
-```
+* refresh token
+* testes automatizados
+* deploy
+* frontend consumindo a API
+* melhorias na arquitetura
