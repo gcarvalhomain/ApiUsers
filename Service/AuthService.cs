@@ -57,7 +57,7 @@ public class AuthService
         };
     }
 
-    public async Task<LoginResponse> LoginAsync(LoginRequest request)
+    public async Task<LoginResponse?> LoginAsync(LoginRequest request)
     {
         var user = await _context.Users
             .FirstOrDefaultAsync(user => user.Email == request.Email);
@@ -92,7 +92,8 @@ public class AuthService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
         };
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!));

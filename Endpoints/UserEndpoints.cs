@@ -132,7 +132,7 @@ public static class UserEndpoints
 
         return Results.NoContent();
     })
-    .RequireAuthorization();
+    .RequireAuthorization("AdminOnly");
 }
 
     private static string? ValidateUser(string? name, string? email, int age)
