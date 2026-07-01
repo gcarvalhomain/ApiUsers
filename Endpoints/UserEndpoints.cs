@@ -10,7 +10,7 @@ public static class UserEndpoints
     public static void MapUserEndpoints(this WebApplication app)
 {
     app.MapGet("/api/users", async (
-        int? page, int? pageSize, string? search, string? sortyBy, string? SortedDirection, UserService userService) =>
+        int? page, int? pageSize, string? search, string? sortyBy, string? sortedDirection, UserService userService) =>
     {
         var currentPage = page ?? 1;
         var currentPageSize = pageSize ?? 10;
@@ -40,7 +40,7 @@ public static class UserEndpoints
         }
 
         var users = await userService.GetAllAsync( 
-            currentPage, currentPageSize, search,  sortyBy, SortedDirection);
+            currentPage, currentPageSize, search,  sortyBy, sortedDirection);
 
         return Results.Ok(users);
     });
@@ -81,7 +81,8 @@ public static class UserEndpoints
         var user = await  userService.CreateAsync(request);
 
         return Results.Created($"/api/users/{user.Id}", user);
-    });
+    })
+    .RequireAuthorization();
 
     app.MapPut("/api/users/{id}", async (int id, UpdateUserRequest request, UserService userService) =>
     {
@@ -114,7 +115,8 @@ public static class UserEndpoints
         var user = await  userService.GetByIdAsync(id);
 
         return Results.Ok(user);
-    });
+    })
+    .RequireAuthorization();
 
     app.MapDelete("/api/users/{id}",  async (int id, UserService userService) =>
     {
@@ -129,8 +131,8 @@ public static class UserEndpoints
         }
 
         return Results.NoContent();
-    });
-    
+    })
+    .RequireAuthorization();
 }
 
     private static string? ValidateUser(string? name, string? email, int age)
