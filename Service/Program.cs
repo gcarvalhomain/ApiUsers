@@ -22,6 +22,8 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddOpenApi();
 
+// Configura o JWT como esquema padrao da API. Rotas com RequireAuthorization()
+// validam emissor, audiencia, expiracao e assinatura com estes valores.
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -46,6 +48,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
+    // Centraliza a regra administrativa para evitar repetir RequireRole nas rotas.
     options.AddPolicy("AdminOnly", policy =>
     {
         policy.RequireRole("Admin");
@@ -56,6 +59,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    // Documentacao interativa habilitada apenas em desenvolvimento.
     app.MapOpenApi();
     app.MapScalarApiReference();
 }

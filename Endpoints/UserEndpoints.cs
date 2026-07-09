@@ -9,6 +9,7 @@ public static class UserEndpoints
 
     public static void MapUserEndpoints(this WebApplication app)
 {
+    // Listagem publica com limites defensivos para evitar consultas grandes demais.
     app.MapGet("/api/users", async (
         int? page, int? pageSize, string? search, string? sortyBy, string? sortedDirection, UserService userService) =>
     {
@@ -82,10 +83,12 @@ public static class UserEndpoints
 
         return Results.Created($"/api/users/{user.Id}", user);
     })
+    // Criacao direta de usuario exige login; cadastro publico com senha fica em /api/auth/register.
     .RequireAuthorization();
 
     app.MapPut("/api/users/{id}", async (int id, UpdateUserRequest request, UserService userService) =>
     {
+        
         var validationError =  ValidateUser(request.Name, request.Email, request.Age);
 
         if (validationError is not null)
@@ -93,6 +96,14 @@ public static class UserEndpoints
             return Results.BadRequest(new ErrorResponse
             {
                 Message =  validationError
+            });
+        }
+        var emailExistsForAnotherUser = await userService.EmailExistsForAnotherUserAsync(request.Email!, id);
+        if (emailExistsForAnotherUser)
+        {
+            return Results.BadRequest(new ErrorResponse
+            {
+                Message = "Email already exists."
             });
         }
         var updated = await userService.UpdateAsync(id, request);
@@ -104,20 +115,14 @@ public static class UserEndpoints
                 Message = "User not found."
             });
         }
-        var emailExistsForAnotherUser = await userService.EmailExistsForAnotherUserAsync(request.Email!, id);
-        if (emailExistsForAnotherUser)
-        {
-            return Results.BadRequest(new ErrorResponse
-            {
-                Message = "Email already exists."
-            });
-        }
+        
         var user = await  userService.GetByIdAsync(id);
 
         return Results.Ok(user);
     })
     .RequireAuthorization();
 
+    // Remocao usa a policy AdminOnly configurada em Program.cs.
     app.MapDelete("/api/users/{id}",  async (int id, UserService userService) =>
     {
         var deleted = await userService.DeleteAsync(id);

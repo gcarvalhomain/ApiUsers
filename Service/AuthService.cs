@@ -23,6 +23,7 @@ public class AuthService
         _passwordHasher = new PasswordHasher<User>();
     }
 
+    // Retorna null quando o e-mail ja existe para que o endpoint decida o status HTTP.
     public async Task<UserResponse?> RegisterAsync(RegisterUserRequest request)
     {
         var emailExists = await _context.Users
@@ -33,6 +34,7 @@ public class AuthService
             return null;
         }
 
+        // A senha nunca deve sair da camada de autenticacao; somente o hash e persistido.
         var user = new User
         {
             Name = request.Name!,
@@ -77,8 +79,10 @@ public class AuthService
             return null;
         }
 
+        // O token carrega os dados minimos usados por /api/auth/me e pelas policies de role.
         return GenerateJwtToken(user);
     }
+
     private LoginResponse GenerateJwtToken(User user)
     {
         var key = _configuration["Jwt:Key"];

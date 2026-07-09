@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // O banco tambem protege unicidade de e-mail; a validacao nos endpoints melhora apenas a mensagem.
         modelBuilder.Entity<User>()
             .HasIndex(user => user.Email)
             .IsUnique();
