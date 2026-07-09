@@ -1,5 +1,6 @@
 ﻿namespace ApiUsers.Dtos;
 
+// DTO publico do usuario. Nao inclui PasswordHash para evitar vazamento de credenciais.
 public class UserResponse
 {
     public int Id { get; set; }

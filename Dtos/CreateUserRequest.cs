@@ -1,5 +1,6 @@
 ﻿namespace ApiUsers.Dtos;
 
+// Entrada para criacao por rota protegida; nao inclui senha nem role.
 public class CreateUserRequest
 {
     public string Name { get; set; } = string.Empty;

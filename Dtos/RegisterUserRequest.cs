@@ -1,5 +1,6 @@
 ﻿namespace ApiUsers.Dtos;
 
+// Entrada do cadastro publico; a senha sera convertida para hash no AuthService.
 public class RegisterUserRequest
 {
     public string? Name { get; set; }

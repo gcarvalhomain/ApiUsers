@@ -1,5 +1,6 @@
 ﻿namespace ApiUsers.Dtos;
 
+// Entrada de atualizacao completa dos dados basicos do usuario.
 public class UpdateUserRequest
 {
     public string? Name { get; set; } = string.Empty;

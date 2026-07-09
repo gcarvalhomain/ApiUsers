@@ -2,6 +2,7 @@
 
 namespace ApiUsers.Responses;
 
+// Envelope reutilizavel para endpoints que retornam listas paginadas.
 public class PagedResponse<T>
 {
     public int Page { get; set; }

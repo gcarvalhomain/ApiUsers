@@ -19,6 +19,8 @@ public class UserService
         int page, int pageSize, string? search, string? sortBy,  string? sortDirection)
     {
         var query = _context.Users.AsQueryable();
+
+        // Mantem busca e ordenacao no IQueryable para o EF traduzir tudo para SQL.
         if (!string.IsNullOrWhiteSpace(search))
         {
             var searchTerm = search.Trim();
@@ -28,6 +30,7 @@ public class UserService
         }
         var isDescending = sortDirection?.ToLower() == "desc";
 
+        // Lista fechada de campos evita ordenacao dinamica por nomes arbitrarios enviados na query string.
         query = sortBy?.ToLower() switch
         {
             "name" => isDescending
@@ -52,7 +55,8 @@ public class UserService
         };
         
         var totalItems = await query.CountAsync();
-            
+
+            // A validacao dos limites de pagina fica nos endpoints antes de chamar o servico.
             var user = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -100,6 +104,7 @@ public class UserService
 
     public async Task<UserResponse> CreateAsync(CreateUserRequest request)
     {
+        // Criacao administrativa nao recebe senha; cadastro com senha fica em AuthService.RegisterAsync.
         var user = new User
         {
             Name = request.Name,

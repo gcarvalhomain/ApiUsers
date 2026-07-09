@@ -9,6 +9,7 @@ public static class AuthEndpoints
 {
     public static void MapAuthEndpoints(this WebApplication app)
     {
+        // Rotas de auth ficam publicas; elas validam entrada manualmente antes de chamar o servico.
         app.MapPost("/api/auth/register", async (RegisterUserRequest request, AuthService authService) =>
         {
             var validationError = ValidateRegister(request);
@@ -60,6 +61,7 @@ public static class AuthEndpoints
         
         app.MapGet("/api/auth/me", (ClaimsPrincipal user) =>
             {
+                // Os valores retornados aqui vem das claims emitidas em AuthService.GenerateJwtToken.
                 var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
                 var name = user.FindFirstValue(ClaimTypes.Name);
                 var email = user.FindFirstValue(ClaimTypes.Email);
